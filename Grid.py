@@ -1,94 +1,88 @@
-from Cell import Cell
+class Grid(object):
 
-class Grid:
-       
-    def __init__(self,rowLength,columnLength,sizeOfCell,screen,margin,pygame):
-        self.numberOfRows = rowLength
-        self.numberOfColumns = columnLength
-        self.screen = screen
-        self.pygame = pygame
-        self.margin = margin
-        self.cellWidth = sizeOfCell
-        self.cellHeight = sizeOfCell
-        self.cellMatrix = []
-        self.shouldDrawScreen = False
-        self.createGrid()
-       
-    #---------------------------------------------------------------------
-    #Instance Variables [Getters and Setters]
-    #---------------------------------------------------------------------
-     
-    @property
-    def numberOfRows(self):
-        return self._numberOfRows
+    def __init__(self,worldMap,size,color,pos):
+        self.worldMap = worldMap
+        self.size = size
+        self.color = color
+        self.posOnMap = pos # (x,y)                                                                     
+        # dictionary objectsIdx stores the object name and its corresponding index in list objects
+        self.objectsIdx = dict()
+        # list objects stores the actual object in a stack manner, so we can always draw the object on top
+        self.objects = []
+        # TODO: see if foodIntensity can be part of objects
+        # no food but can have food intensity
+        self.foodIntensity = 0
     
-    @numberOfRows.setter
-    def numberOfRows(self,value):
-        self._numberOfRows = value
-     
     @property
-    def numberOfColumns(self):
-        return self._numberOfColumns
-    
-    @numberOfColumns.setter
-    def numberOfColumns(self,value):
-        self._numberOfColumns = value
+    def worldMap(self):
+        return self._worldMap
+
+    @worldMap.setter
+    def worldMap(self,value):
+        self._worldMap = value
         
     @property
-    def screen(self):
-        return self._screen
-    
-    @screen.setter
-    def screen(self,value):
-        self._screen = value
-    
-    @property
-    def pygame(self):
-        return self._pygame
-    
-    @pygame.setter
-    def pygame(self,value):
-        self._pygame = value
-        
-    @property
-    def cellWidth(self):
-        return self._cellWidth
-    
-    @cellWidth.setter
-    def cellWidth(self,value):
-        self._cellWidth = value  
+    def size(self):
+        return self._size
+
+    @size.setter
+    def size(self,value):
+        self._size = value
 
     @property
-    def cellHeight(self):
-        return self._cellHeight
+    def color(self):
+        return self._color
+
+    @color.setter
+    def color(self,value):
+        self._color = value
     
-    @cellHeight.setter
-    def cellHeight(self,value):
-        self._cellHeight = value 
-     
     @property
-    def cellMatrix(self):
-        return self._cellMatrix
+    def posOnMap(self):
+        return self._posOnMap
     
-    @cellMatrix.setter
-    def cellMatrix(self,value):
-        self._cellMatrix = value    
+    @posOnMap.setter
+    def posOnMap(self,value):
+        self._posOnMap = value
+
+    @property
+    def objectsIdx(self):
+        return self._objectsIdx
+    
+    @objectsIdx.setter
+    def objectsIdx(self,value):
+        self._objectsIdx = value
+                
+    @property
+    def objects(self):
+        return self._objects
+    
+    @objects.setter
+    def objects(self,value):
+        self._objects = value
+
+    @property
+    def foodIntensity(self):
+        return self._foodIntensity
+    
+    @foodIntensity.setter
+    def foodIntensity(self,value):
+        self._foodIntensity = value
+      
+    def hasObject(self,objectName):
+        return objectName in self._objectsIdx;
         
-     
-    #---------------------------------------------------------------------
-    #Class Methods
-    #---------------------------------------------------------------------
-    def createGrid(self):        
-        for row in range(0, self.numberOfRows):
-            cellRow = []
-            for columns in range(0,self.numberOfColumns):
-                cell = Cell(self.cellWidth,self.cellHeight,self.margin)
-                cell.setGrid(self)                
-                cellRow.append(cell)
-            self.cellMatrix.append(cellRow)
+    def hasAnyObject(self):
+        if self._objectsIdx:
+            return True
+        else:
+            return False
+             
+    def drawGrid(self):
+        if self.hasAnyObject():
+            self._worldMap.pygame.draw.rect(self._worldMap.screen,self.objects[-1].color,(self._posOnMap[0]*self._size,self._posOnMap[1]*self._size,self._size,self.size))
+        else:
+            self._worldMap.pygame.draw.rect(self._worldMap.screen,self.color,(self._posOnMap[0]*self._size,self._posOnMap[1]*self._size,self._size,self.size))
+        # if(self.grid.shouldDrawScreen):
     
-    def drawGrid(self,cellColor):
-        for rowIndex in range(0, self.numberOfRows):            
-            for columnIndex in range(0,self.numberOfColumns):                
-                self.cellMatrix[rowIndex][columnIndex].drawCellOnGrid(rowIndex,columnIndex,cellColor,self.screen)            
     

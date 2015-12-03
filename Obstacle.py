@@ -1,12 +1,6 @@
-from EnvironmentObject import EnvironmentObject
+from Environment import Environment
 
-class Obstacle(EnvironmentObject):
-    
-    #Static Variable - Class members
-    dictionaryOfObstacles = dict()
-        
-    def __init__(self,width,height,color,grid):
-        EnvironmentObject.__init__(self,width,height,color,grid)
-        #Already initialized at a random position by superclass
-        for i in range(0,width):
-            Obstacle.dictionaryOfObstacles[(self.gridX+i,self.gridY)] = self
+class Obstacle(Environment):
+      
+    def __init__(self,worldMap,width,height,color):
+        Environment.__init__(self,worldMap,'obstacle',width,height,color)

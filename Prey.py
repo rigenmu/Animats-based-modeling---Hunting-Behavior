@@ -1,45 +1,69 @@
-import Predator
-
-from AnimatObject import Animat
-from Food import Food
-from Obstacle import Obstacle
-import qlearn_mod_random as qlearn
+from Animat import Animat
 from Actions import Actions
-import numpy as np
+import qlearn_mod_random as qlearn
 
 class Prey(Animat):
-        
-    dictionaryOfPreys= dict()
     
-    def __init__(self,width,height,color,grid):
-        Animat.__init__(self, width, height, color, grid)
+    def __init__(self,worldMap,scopeDist,width,height,color):
+        Animat.__init__(self,worldMap,width,height,color)
+        self.scope = scopeDist  
         self.ai = qlearn.QLearn(actions=range(Actions.directions),alpha=0.1, gamma=0.9, epsilon=0.1)
-        self.eaten = 0  
-        Prey.dictionaryOfPreys[(self.gridX,self.gridY)] = self      
-        
-    def getPredatorPositionsInNeighborhood(self):
-        neighborGrids = self.getNeighborGridCoordinates()
-        predatorPositionsInNeighborhood = []
-        for neighborGrid in neighborGrids:
-            if(Predator.Predator.dictionaryOfPredators.has_key(neighborGrid)):
-                predatorPositionsInNeighborhood.append(neighborGrid)
-        return predatorPositionsInNeighborhood
+        self.eaten = 0      
     
-    def getNeighborGridCoordinates(self):
-        positionsOfNeighborGrids = []
-        lookAroundDistance = 3        
-        for i in range (-lookAroundDistance,lookAroundDistance + 1):
-            for j in range (-lookAroundDistance,lookAroundDistance + 1):
-                if(not (i==0 and j==0)):
-                    neighborPosition = (self.gridX + i, self.gridY + j)
-                    if(i < 0 and Obstacle.dictionaryOfObstacles.has_key(neighborPosition)):
-                        del positionsOfNeighborGrids[:]
-                        break
-                    elif(i < 0)
-                    if(self.isWithinBounds(neighborPosition[0],neighborPosition[1])):
-                        positionsOfNeighborGrids.append(neighborPosition)
-        return positionsOfNeighborGrids
+    # we assume preys only have visual sensor
+    # and visual scope would be blocked by obstacles
+    def getGridsWithinVisualScope(self):
+        gridsWithinVisualScope = []
+        
+        gridsWithinScope = getGridsWithinScope(self.scope)
+        candidateGridsWithinVisualScope = []
+        obstaclesWithinScope = []
+
+        # split grids within scope into obstacles and non-obstacles
+        for grid in gridsWithinScope:
+            if self.worldMap.hasObjectAt(grid,'obstacle'):
+                obstaclesWithinScope.append(grid)
+            else:
+                candidateGridsWithinVisualScope.append(grid)
                 
+        for candidate in candidateGridsWithinVisualScope:
+            blocked = False
+            for obstacle in obstaclesWithinScope:
+                if self.isGridBlockedByObstacle(candidate,obstacle):
+                    blocked = True
+                    break
+            if not blocked:
+                gridsWithinVisualScope.append(candidate)
+        
+        # for neighbor in positionsOfNeighborGrids:
+       #      cell = self.grid.cellMatrix[neighbor[0]][neighbor[1]]
+       #      self.grid.pygame.draw.rect(self.grid.screen,(0, 0, 255),(cell.x,cell.y,cell.width,cell.height))
+       #
+            
+    def getPredatorsWithinVisualScope(self):
+        predatorsWithinScope = []
+        
+        gridsWithinVisualScope = self.getGridsWithinVisualScope()
+        for grid in gridsWithinVisualScope:
+            if self.worldMap.hasObjectAt(grid,'predator'):
+                predatorsWithinScope.append(grid)
+                
+        return predatorsWithinScope
+
+    def hasPredatorsWithinVisualScope(self):
+        predatorsWithinScope = self.getPredatorsWithinVisualScope()
+        
+        if predatorsWithinScope:
+            return True
+        else:
+            return False
+     
+    def isBeingEatenByPredator(self):
+        return self.isObjectAt(self.posOnMap,'predator'):
+    
+    def isEatingFood(self):
+        return self.isObjectAt(self.posOnMap,'food')
+                                  
     def update(self):
         return
         #Override this for all subclasses
@@ -92,64 +116,34 @@ class Prey(Animat):
 #         self.performAction(action)
 #         self.drawGameObjectAtCurrentPosition()    
     
-    def hasPredatorInNeighborhood(self):
-        predatorsInNeighborHood = self.getPredatorPositionsInNeighborhood()
-        if(len(predatorsInNeighborHood) > 0):
-            return True
-        return False
-    
-    def isBeingEatenByPredator(self):
-        return self.isCellOnAnyPredator((self.gridX,self.gridY))
-    
     def calculateState(self):
-        def stateValueForNeighbor(neighborCellCoordinates):
-            currentCellState = ()
-            if self.isCellOnAnyPredator(neighborCellCoordinates):
-                currentCellState += (4,)
-            if self.isCellOnAnyFood(neighborCellCoordinates):
-                currentCellState += (3,)
-            if self.isCellOnAnyObstacle(neighborCellCoordinates):
-                currentCellState = (2,)                        
-            if self.hasNoObjectOnCell(neighborCellCoordinates):
-                currentCellState = (0,)
+        def stateValueForGridWithinvisualScope(gridWithinVisualScope):
+            currentGridState = ()
+            if self.isPosOnPredator(gridWithinVisualScope):
+                currentGridState += (4,)
+            if self.isPosOnFood(gridWithinVisualScope):
+                currentGridState += (3,)
+            if self.isPosOnObstacle(gridWithinVisualScope):
+                currentGridState = (2,)                        
+            if self.isPosIdle(gridWithinVisualScope):
+                currentGridState = (0,)
                 
-            if bool(self.getCellFoodIntensity(neighborCellCoordinates)):
-                currentCellState += (self.getCellFoodIntensity(neighborCellCoordinates),)
+            if self.getPosFoodIntensity(gridWithinVisualScope) > 0:
+                currentGridState += (self.getPosFoodIntensity(gridWithinVisualScope),)
                 
-            return currentCellState
+            return currentGridState
             
-        return tuple([stateValueForNeighbor(neighborCellCoordinates) for neighborCellCoordinates in self.getNeighborGridCoordinates()])
-
-    def getCellFoodIntensity(self,neighborCellCoordinates):
-        cell = self.grid.cellMatrix[neighborCellCoordinates[0]][neighborCellCoordinates[1]]
-        return cell.foodIntensity
+        return tuple([stateValueForGridWithinvisualScope(gridWithinVisualScope) for gridWithinVisualScope in self.getGridsWithinVisualScope()])
+            
+    def move(self, offset):
+        originPos = self.posOnMap
+        nextPos = (self.posOnMap[0]+offset[0], self.posOnMap[1]+offset[1])
         
-    def hasNoObjectOnCell(self,gridCoordinatesOfCell):
-        return (not (self.isCellOnAnyFood(gridCoordinatesOfCell))) and (not(self.isCellOnAnyObstacle(gridCoordinatesOfCell))) and (not(self.isCellOnAnyPredator(gridCoordinatesOfCell))) and not(self.getCellFoodIntensity(gridCoordinatesOfCell))
-    
-    def isEatingFood(self):
-        return self.isCellOnAnyFood((self.gridX,self.gridY))
-    
-    def isCellOnAnyPredator(self,gridCoordinatesOfCell):
-        predatorKeys = Predator.Predator.dictionaryOfPredators.keys() #Keys are tuples and Values are references to the actual predator object
-        for predatorPosition in predatorKeys:
-            if(gridCoordinatesOfCell == predatorPosition):
-                return True
-        return False
-    
-    def isCellOnAnyFood(self,gridCoordinatesForCell):
-        if(Food.dictionaryOfFoodObjects.has_key(gridCoordinatesForCell)):            
-            return True
-        return False
-    
-    def isCellOnAnyObstacle(self,gridCoordinatesForCell):
-        if(Obstacle.dictionaryOfObstacles.has_key(gridCoordinatesForCell)):            
-            return True
-        return False
-    
-    def move(self, directionX, directionY):
-        #Override for subclass
-        Animat.move(self, directionX, directionY)
+        if self.isPosValid(nextPos):
+            self.removeObjectAt(originPos)
+            self.setObjectAt(nextPos)
+            Animat.move(nextPos)
+
 #         oldXPosition = self.gridX
 #         oldYPosition = self.gridY        
 #         nextXPosition = self.gridX + directionX
@@ -162,7 +156,7 @@ class Prey(Animat):
 #                 Prey.dictionaryOfPrey.pop((oldXPosition,oldYPosition))
 #                 Prey.dictionaryOfPrey[(self.gridX,self.gridY)] = self;
         
-    def respawnAtRandomPosition(self):
+    def respawnAtRandPos(self):
         #Override for subclass
         return
 #         oldXPosition = self.gridX
@@ -179,40 +173,58 @@ class Prey(Animat):
 #             self.setXYPosition(randomX, randomY)
 #         Prey.dictionaryOfPrey[(self.gridX,self.gridY)] = self        
         
-    def rewardForProximityToFood(self):        
-        cell = self.grid.cellMatrix[self.gridX][self.gridY]        
-        return cell.foodIntensity
-            
-    def findAngleTo(self,x1,y1):
-        pi = np.pi
-        x0 = self.gridX
-        y0 = self.gridY
-        deltaX = x1 - x0
-        deltaY = y1 - y0
-        if(deltaX == 0):
-            deltaX = 0.000000001
-        theta = None
-        
-        slope = deltaY/deltaX
-        
-        if deltaX >= 0:
-            #Q1 or Q4
-            if deltaY >= 0:
-                #Q1
-                theta = np.arctan(slope)
-            else:
-                #Q4
-                theta = 2*pi + np.arctan(slope)
-        else:
-            #Q2 or Q3
-            if deltaY >= 0:
-                #Q2
-                theta = pi + np.arctan(slope)
-            else:
-                #Q3
-                theta = 3*pi/2 - np.arctan(slope)
-        
-        return round(theta * 180 / pi)
+    def rewardForProximityToFood(self):              
+        return self.getPosFoodIntensity(self.posOnMap)
    
+    def orientation(self, p, q, r):
+        val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])
         
+        if val == 0:
+            return 0
+        elif val > 0:
+            return 1
+        else:
+            return 2
+     
+    def onSegment(self, p, q, r):
+        if q[0] <= max(p[0], r[0]) and q[0] >= min(p[0], r[0]) and q[1] <= max(p[1], r[1]) and q[1] >= min(p[1], r[1]):
+            return True
+        return False
+     
+    def isIntersect(self,p1,q1,p2,q2):
+        
+        if p1 == p2 or q1 == q2:
+            return False
+            
+        o1 = self.orientation(p1,q1,p2)
+        o2 = self.orientation(p1,q1,q2)
+        o3 = self.orientation(p2,q2,p1)
+        o4 = self.orientation(p2,q2,q1)
+        
+        if o1 != o2 and o3 != o4:
+            return True
+        else:
+            return False
     
+       
+    def isGridBlockedByObstacle(self,grid,obstacle):
+        """judge if cur_pos-self line intersect with obstacle line"""
+        p1 = self.posOnMap
+        q1 = grid
+        p2 = obstacle
+        q2 = (obstacle[0]+1, obstacle[1])
+        p3 = obstacle
+        q3 = (obstacle[0], obstacle[1]+1)
+        
+        if self.isIntersect(p1,q1,p2,q2) or self.isIntersect(p1,q1,p3,q3):
+            return True
+        else:
+            return False
+        # if o1 == 0 and self.onSegment(p1,p2,q1):
+        #     return True
+        # if o2 == 0 and self.onSegment(p1,q2,q1):
+        #     return True
+        # if o3 == 0 and self.onSegment(p2,p1,q2):
+        #     return True
+        # if o4 == 0 and self.onSegment(p2,q1,q2):
+        #     return True

@@ -1,18 +1,15 @@
-from Obstacle import Obstacle
-from EnvironmentObject import EnvironmentObject
+from Environment import Environment
 import math
-class Food(EnvironmentObject):
+
+class Food(Environment):
     
-    dictionaryOfFoodObjects = dict()
-    
-    def __init__(self,width,height,color,grid):
-        EnvironmentObject.__init__(self,width,height,color,grid)
-        self.reward = 0
+    def __init__(self,worldMap,width,height,color):
+        Environment.__init__(self,worldMap,'food',width,height,color)
+        # self.reward = 0 ?????????????????????
         self.gradientsCreated = False
         self.foodStrengthRounds = 0
-        Food.dictionaryOfFoodObjects[(self.gridX,self.gridY)] = self
-        self.grid.cellMatrix[self.gridX][self.gridY].foodIntensity = 1
-        self.grid.cellMatrix[self.gridX][self.gridY].food = self  
+        
+        self.setup()
 
     @property
     def gradientsCreated(self):
@@ -21,28 +18,10 @@ class Food(EnvironmentObject):
     @gradientsCreated.setter
     def gradientsCreated(self,value):
         self._gradientsCreated = value
-           
-    def isPossibleToPlaceAtLocation(self,nextGridX,nextGridY):
-        if(self.isWithinBounds(nextGridX, nextGridY) and not self.isOnObstacle(nextGridX, nextGridY)):
-            return True
-        return False
-    
-    def isOnObstacle(self,gridX,gridY):
-        if(Obstacle.dictionaryOfObstacles.has_key((gridX,gridY))):
-            return True
-        return False
-    
-    def isWithinBounds(self,gridX,gridY):
-        if(gridX < 0 or gridX > self.grid.numberOfColumns-1 or gridY < 0 or gridY > self.grid.numberOfRows - 1):
-            return False
-        return True
     
     def setup(self):
-        randomPositionCoordinates = self.generateRandomPosition()
-        while(not self.isPossibleToPlaceAtLocation(randomPositionCoordinates[0], randomPositionCoordinates[1])):
-            randomPositionCoordinates = self.generateRandomPosition()
-        self.setXYPosition(randomPositionCoordinates[0],randomPositionCoordinates[1])
-
+        self.worldMap.setFoodIntensityAt(self.posOnMap,1)
+        
     def getNeighborGridCoordinates(self,numberOfRoundsAroundFood):
         neighborPositionsInRound = []
         for cellDistance in range(1,numberOfRoundsAroundFood+1):
