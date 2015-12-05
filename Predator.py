@@ -3,12 +3,12 @@ from Actions import Actions
 import qlearn_mod_random as qlearn
 
 class Predator(Animat):
-    
+
     def __init__(self,worldMap,scopeDist,width,height,color):
         Animat.__init__(self,worldMap,'predator',scopeDist,width,height,color)
         self.brain = qlearn.QLearn(actions=range(Actions.directions),alpha=0.1, gamma=0.9, epsilon=0.1)
         self.eat = 0
-             
+
     # predators' sensor would not be blocked by obstacles
     def getPreysWithinScope(self):
         preysWithinScope = []
@@ -16,44 +16,45 @@ class Predator(Animat):
         for grid in gridsWithinScope:
             if self.worldMap.hasObjectAt(grid,'prey'):
                 preysWithinScope.append(grid)
-                
+
         return preysWithinScope
-    
+
     def hasPreysWithinScope(self):
         preysWithinScope = self.getPreysWithinScope()
         if preysWithinScope:
             return True
         else:
             return False
-    
+
     def isEatingPrey(self):
         return self.isObjectAt(self.posOnMap,'prey')
-         
+
     def update(self):
         state = self.calculateState()
         reward = -1
-        
+
         #Check if the animat has been eaten by any of the predators
         if self.posOnMap in self.prevPos:
-            reward += -20
+            reward += -10
         elif self.hasPreysWithinScope():
-            reward = 20                     
+            reward = 20
         if self.isEatingPrey():
             #PreyAdult re-spawns itself randomly, if it gets eaten
             self.fed += 1
-            reward = 50            
-                
+            reward = 100
+
         if self.oldState is not None:
             self.brain.learn(self.oldState,self.oldAction,reward,state)
-            
+
         state = self.calculateState()
-        action = self.brain.chooseAction(state)
+        action, q = self.brain.chooseAction(state, True)
+        print q
         self.oldState = state
-        self.oldAction = action            
+        self.oldAction = action
         self.recordPreviousNPos(2)
-        self.performAction(action) 
-    
-    def calculateState(self): 
+        self.performAction(action)
+
+    def calculateState(self):
         def stateValueForGridWithinScope(gridWithinScope):
             if self.worldMap.hasObjectAt(gridWithinScope,'prey'):
                 return 3
@@ -63,5 +64,5 @@ class Predator(Animat):
                 return 1
             else:
                 return 0
-        
-        return tuple([stateValueForGridWithinScope(gridWithinScope) for gridWithinScope in self.getGridsWithinScope()])    
+
+        return tuple([stateValueForGridWithinScope(gridWithinScope) for gridWithinScope in self.getGridsWithinScope()])
