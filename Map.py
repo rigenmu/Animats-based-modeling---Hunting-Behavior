@@ -2,11 +2,11 @@ from Grid import Grid
 
 class Map:
        
-    def __init__(self,numOfGridsInARow,sizeOfGrid,color,screen,pygame):
+    def __init__(self,numOfGridsInARow,sizeOfGrid,color,surface,pygame):
         self.numOfRows = numOfGridsInARow
         self.sizeOfGrid = sizeOfGrid
         self.pygame = pygame
-        self.screen = screen
+        self.surface = surface
         self.color = color
         self.gridsMatrix = []
         
@@ -30,12 +30,12 @@ class Map:
         self._sizeOfGrid = value  
 
     @property
-    def screen(self):
-        return self._screen
+    def surface(self):
+        return self._surface
     
-    @screen.setter
-    def screen(self,value):
-        self._screen = value
+    @surface.setter
+    def surface(self,value):
+        self._surface = value
     
     @property
     def pygame(self):
@@ -60,47 +60,66 @@ class Map:
     @gridsMatrix.setter
     def gridsMatrix(self,value):
         self._gridsMatrix = value    
-    
-    def isPosWithinBoundary(pos):
-        if pos[0] < 0 or pos[0] >= self.numOfRows or pos[1] < 0 or pos[1] >= self.numOfRows:
-            return False
-        else
-            return True
-    
-    def getFoodIntensityAt(self,pos):
-        return self.gridsMatrix[pos[0]][pos[1]].foodIntensity
-     
-    def hasAnyObjectAt(self,pos):
-        return self.gridsMatrix[pos[0]][pos[1]].hasAnyObject()
-         
-    def hasObjectAt(self,pos,objectName):
-        return self.gridsMatrix[pos[0]][pos[1]].hasObject(objectName)
-
-    def setObjectAt(self,pos,objectName,obj):
-        self.gridsMatrix[pos[0]][pos[1]].objects.append(obj)
-        self.gridsMatrix[pos[0]][pos[1]].objectsIdx[objectName] = len(self.gridsMatrix[pos[0]][pos[1]].objects)-1
-     
-    def setFoodIntensityAt(self,pos,foodIntensity):
-        self.gridMatrix[pos[0]][pos[1]].foodIntensity = foodIntensity
-           
-    def removeObjectAt(self,pos,objectName):
-        if self.hasObjectAt(pos,objectName):
-            del self.gridsMatrix[pos[0]][pos[1]].objects[objectsIdx[objectName]]
-            del self.gridsMatrix[pos[0]][pos[1]].objectsIdx[objectName]
-    
-    def updateMapAt(self,pos):
-        if self.isPosWithinBoundary(pos):
-            self.gridsMatrix[pos[0]][pos[1]].drawGrid() 
-            
+   
     def setupMap(self):
         self.gridsMatrix = [[Grid(self,self.sizeOfGrid,self.color,(i,j)) for i in range(self.numOfRows)] for j in range(self.numOfRows)] 
         for i in range(self.numOfRows):            
             for j in range(self.numOfRows):       
-                self.gridsMatrix[i][j].drawGrid()  
-                 
-    def cleanMap(self):
-        del self.gridsMatrix    
-        
+                self.gridsMatrix[i][j].drawGrid()
+                
     def updateMap(self):
-        self.cleanMap()
-        self.setUpMap()  
+        # self.surface.fill(BLACK)
+        for i in range(self.numOfRows):
+            for j in range(self.numOfRows):
+                self.gridsMatrix[i][j].drawGrid()  
+        # self.pygame.display.update()
+                
+    def updateMapAt(self,pos,color):
+        if self.isPosWithinBoundary(pos):
+            self.gridsMatrix[pos[0]][pos[1]].drawGridWithColor(color)
+                         
+    def cleanMap(self):
+        del self.gridsMatrix
+            
+    def isPosWithinBoundary(self,pos):
+        if pos[0] < 0 or pos[0] >= self.numOfRows or pos[1] < 0 or pos[1] >= self.numOfRows:
+            return False
+        else:
+            return True
+     
+    def hasAnyObjectAt(self,pos):
+        if self.isPosWithinBoundary(pos):
+            return self.gridsMatrix[pos[0]][pos[1]].hasAnyObject()
+         
+    def hasObjectAt(self,pos,objectName):
+        if self.isPosWithinBoundary(pos):
+            return self.gridsMatrix[pos[0]][pos[1]].hasObject(objectName)
+
+    def setObjectAt(self,pos,objectName,obj):
+        if self.isPosWithinBoundary(pos):
+            self.gridsMatrix[pos[0]][pos[1]].objects.append(obj)
+            self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName] = obj
+     
+    def setFoodIntensityAt(self,pos,foodIntensity):
+        if self.isPosWithinBoundary(pos):
+            self.gridsMatrix[pos[0]][pos[1]].foodIntensity += foodIntensity
+           
+    def removeObjectAt(self,pos,objectName):
+        if self.hasObjectAt(pos,objectName):
+            self.gridsMatrix[pos[0]][pos[1]].objects.remove(self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName])
+            del self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName]
+            
+    def removeFoodIntensityAt(self,pos,foodIntensity):
+        if self.isPosWithinBoundary(pos):
+            self.gridsMatrix[pos[0]][pos[1]].foodIntensity -= foodIntensity
+            if self.gridsMatrix[pos[0]][pos[1]].foodIntensity < 0:
+                self.gridsMatrix[pos[0]][pos[1]].foodIntensity = 0
+    
+    def getObjectAt(self,pos,objectName):
+        if self.hasObjectAt(pos,objectName):
+            return self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName]
+        
+    def getFoodIntensityAt(self,pos):
+        if self.isPosWithinBoundary(pos):
+            return self.gridsMatrix[pos[0]][pos[1]].foodIntensity
+                

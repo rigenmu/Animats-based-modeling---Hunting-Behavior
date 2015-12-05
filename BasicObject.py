@@ -59,6 +59,16 @@ class BasicObject():
     def posOnMap(self,value):
         self._posOnMap = value
      
+    def initializeAtPos(self):
+        self.posOnMap = self.genRandPos()
+        self.setObjectAt(self.posOnMap)
+    
+    # set current object on map
+    def setObjectAt(self,pos):
+        for i in range(pos[0],pos[0]+self.width):
+            for j in range(pos[1],pos[1]+self.height):
+                self.worldMap.setObjectAt((i,j),self.name,self)
+                    
     def isWithinBoundaryAt(self,pos):
         for i in range(pos[0],pos[0]+self.width):
             for j in range(pos[1],pos[1]+self.height):
@@ -79,33 +89,31 @@ class BasicObject():
      
     # we don't place an object on a position that is already been occupied by same-type object
     def isPosValid(self,pos):
-        if self.isWithinBoundaryAt(pos) and not self.isObjectAt(pos,'obstacle') and not self.isObjectAt(pos,self.name):
-            return True
-        return False
-        
-    # set current object on map
-    def setObjectAt(self,pos):
-        for i in range(pos[0],pos[0]+self.width):
-            for j in range(pos[1],pos[1]+self.height):
-                self.worldMap.setObjectAt((i,j),self.name,self)
+        if not self.isWithinBoundaryAt(pos) or self.isObjectAt(pos,'obstacle') or self.isObjectAt(pos,self.name):
+            return False
+        return True
    
     # remove current object from map
     def removeObjectAt(self,pos):
         for i in range(pos[0],pos[0]+self.width):
             for j in range(pos[1],pos[1]+self.height):
                 self.worldMap.removeObjectAt((i,j),self.name)
-           
-    def initializeAtPos(self):
-        self._posOnMap = self.genRandPos()
-        self.setObjectAt(self._posOnMap)
-        self.updateOnMap()
           
+    # put object at a valid position on map
     def genRandPos(self): 
-        randX = random.randrange(0,self.worldMap.numOfRows)
-        randY = random.randrange(0,self.worldMap.numOfRows)
-        return (randomX,randomY)
+        # ensure the whole object is within boundary
+        while True:
+            randX = random.randrange(0,self.worldMap.numOfRows-self.width)
+            randY = random.randrange(0,self.worldMap.numOfRows-self.height)
+            candidatePos = (randX,randY)
+            if not self.isAnyObjectAt(candidatePos):
+                return candidatePos
     
-    def updateOnMap(self):
+    def drawOnMap(self):
         for i in range(self.posOnMap[0],self.posOnMap[0]+self.width):
-            for j in range(self.self.posOnMap[1],self.posOnMap[1]+self.height):
-                self.worldMap.updateMapAt((i,j))
+            for j in range(self.posOnMap[1],self.posOnMap[1]+self.height):
+                self.worldMap.updateMapAt((i,j),self.color)
+    
+    def respawnOnMap(self):
+        self.removeObjectAt(self.posOnMap)
+        self.initializeAtPos()

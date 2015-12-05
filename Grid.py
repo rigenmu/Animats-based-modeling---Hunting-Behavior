@@ -5,12 +5,10 @@ class Grid(object):
         self.size = size
         self.color = color
         self.posOnMap = pos # (x,y)                                                                     
-        # dictionary objectsIdx stores the object name and its corresponding index in list objects
-        self.objectsIdx = dict()
-        # list objects stores the actual object in a stack manner, so we can always draw the object on top
+        # dictionary objectsIdx stores the object name and its corresponding object
+        self.objectsDict = dict()
+        # list objects shows the comming order of the object, so we can always draw the object on top
         self.objects = []
-        # TODO: see if foodIntensity can be part of objects
-        # no food but can have food intensity
         self.foodIntensity = 0
     
     @property
@@ -46,12 +44,12 @@ class Grid(object):
         self._posOnMap = value
 
     @property
-    def objectsIdx(self):
-        return self._objectsIdx
+    def objectsDict(self):
+        return self._objectsDict
     
-    @objectsIdx.setter
-    def objectsIdx(self,value):
-        self._objectsIdx = value
+    @objectsDict.setter
+    def objectsDict(self,value):
+        self._objectsDict = value
                 
     @property
     def objects(self):
@@ -70,19 +68,21 @@ class Grid(object):
         self._foodIntensity = value
       
     def hasObject(self,objectName):
-        return objectName in self._objectsIdx;
+        return objectName in self.objectsDict;
         
     def hasAnyObject(self):
-        if self._objectsIdx:
+        if self.objectsDict:
             return True
         else:
             return False
              
     def drawGrid(self):
         if self.hasAnyObject():
-            self._worldMap.pygame.draw.rect(self._worldMap.screen,self.objects[-1].color,(self._posOnMap[0]*self._size,self._posOnMap[1]*self._size,self._size,self.size))
+            self.worldMap.pygame.draw.rect(self.worldMap.surface,self.objects[-1].color,(self.posOnMap[0]*self.size,self.posOnMap[1]*self.size,self.size,self.size))
         else:
-            self._worldMap.pygame.draw.rect(self._worldMap.screen,self.color,(self._posOnMap[0]*self._size,self._posOnMap[1]*self._size,self._size,self.size))
-        # if(self.grid.shouldDrawScreen):
+            self.worldMap.pygame.draw.rect(self.worldMap.surface,self.color,(self.posOnMap[0]*self.size,self.posOnMap[1]*self.size,self.size,self.size))
     
-    
+    def drawGridWithColor(self,color):
+        self.worldMap.pygame.draw.rect(self.worldMap.surface,color,(self.posOnMap[0]*self.size,self.posOnMap[1]*self.size,self.size,self.size))
+        
+        
