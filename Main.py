@@ -33,8 +33,8 @@ numOfFood = 10
       
 worldMap = Map(numOfGridsInARow,sizeOfGrid,WHITE,surface,pygame)
 # fixed item should be placed first, since our grid is implemented in a stack manner
-# obstacles = [Obstacle(worldMap,random.randrange(0,3),random.randrange(0,3),BROWN) for i in range(numOfObstacles)]
-obstacles = [Obstacle(worldMap,3,1,BROWN) for i in range(numOfObstacles)]
+obstacles = [Obstacle(worldMap,random.randrange(1,4),random.randrange(1,4),BROWN) for i in range(numOfObstacles)]
+# obstacles = [Obstacle(worldMap,3,1,BROWN) for i in range(numOfObstacles)]
 foods = [Food(worldMap,3,1,1,GREEN) for i in range(numOfFood)]
 predators = [Predator(worldMap,3,1,1,RED) for i in range(numOfPredators)]
 preys = [Prey(worldMap,2,1,1,YELLOW) for i in range(numOfPreys)]
@@ -47,12 +47,18 @@ while True:
 
     surface.fill(WHITE)
     worldMap.updateMap()
-    #update for every object in the world
+    
+    #update for every animat in the world
+    preysEaten = 0
     for predator in predators:
         predator.update()
+        preysEaten += predator.eatPreys
     
+    foodEaten = 0
     for prey in preys:
         prey.update()
-        
-    pygame.display.update()  
+        foodEaten += prey.eatFood
+      
+    print preysEaten, foodEaten  
+    # pygame.display.update()  
     clock.tick(10) 

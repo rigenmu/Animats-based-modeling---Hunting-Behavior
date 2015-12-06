@@ -72,7 +72,7 @@ class Map:
         for i in range(self.numOfRows):
             for j in range(self.numOfRows):
                 self.gridsMatrix[i][j].drawGrid()  
-        # self.pygame.display.update()
+        self.pygame.display.update()
                 
     def updateMapAt(self,pos,color):
         if self.isPosWithinBoundary(pos):

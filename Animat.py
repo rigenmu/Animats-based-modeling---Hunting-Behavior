@@ -14,8 +14,6 @@ class Animat(BasicObject):
         # encourage to visit un-explored area      
         self.prevPos = [] 
         
-        self.fed = 0
-        
     @property
     def scopeDist(self):
         return self._scopeDist
@@ -55,14 +53,6 @@ class Animat(BasicObject):
     @prevPos.setter
     def prevPositions(self,value):
         self._prevPos = value
-        
-    @property
-    def fed(self):
-        return self._fed
-    
-    @fed.setter
-    def fed(self,value):
-        self._fed = value
      
     # return all the grids' positions within animat's smell sensor scope    
     # i.e. without care of obstacles
@@ -100,7 +90,7 @@ class Animat(BasicObject):
             self.removeObjectAt(originPos)
             self.posOnMap = nextPos
             self.setObjectAt(self.posOnMap)
-            self.drawOnMap()
+            # self.drawOnMap()
            
     def moveRandomly(self):
         randAction = random.randrange(Actions.directions)  

@@ -7,8 +7,16 @@ class Prey(Animat):
     def __init__(self,worldMap,scopeDist,width,height,color):
         Animat.__init__(self,worldMap,'prey',scopeDist,width,height,color)
         self.brain = qlearn.QLearn(actions=range(Actions.directions),alpha=0.1, gamma=0.9, epsilon=0.1)
-        self.eaten = 0
+        self.eatFood = 0
 
+    @property
+    def eatFood(self):
+        return self._eatFood
+    
+    @eatFood.setter
+    def eatFood(self,value):
+        self._eatFood = value
+        
     # we assume preys only have visual sensor
     # and visual scope would be blocked by obstacles
     def getGridsWithinVisualScope(self):
@@ -34,8 +42,8 @@ class Prey(Animat):
             if not blocked:
                 gridsWithinVisualScope.append(candidate)
 
-        for grid in gridsWithinVisualScope:
-            self.worldMap.updateMapAt(grid,(255, 102, 0))
+        # for grid in gridsWithinVisualScope:
+        #     self.worldMap.updateMapAt(grid,(255, 102, 0))
         return gridsWithinVisualScope
 
 
@@ -79,7 +87,6 @@ class Prey(Animat):
 
         #Check if the animat has been eaten by any of the predators
         if(self.isBeingEatenByPredator()):
-            self.eaten += 1
             reward = -200
             if self.oldState is not None:
                 self.brain.learn(self.oldState,self.oldAction,reward,state)
@@ -94,10 +101,12 @@ class Prey(Animat):
             #clean up the eaten food
             food = self.worldMap.getObjectAt(self.posOnMap,'food')
             food.afterGotEaten()
-            self.fed += 1
+            self.eatFood += 1
             reward += 100
-            # why not learn here?????????????????
-
+        
+        if self.oldState is not None:
+            self.brain.learn(self.oldState,self.oldAction,reward,state)
+            
         state = self.calculateState()
         action, q = self.brain.chooseAction(state, True)
         print q
