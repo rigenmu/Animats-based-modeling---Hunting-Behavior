@@ -28,7 +28,7 @@ class Food(Environment):
         for grid in gridsWithinScope:
             dist = self.calculateDist(self.posOnMap,grid)
             foodIntensityAtGrid = self.gaussianFn((dist+1)*0.35)
-            print foodIntensityAtGrid
+            # print foodIntensityAtGrid
             self.worldMap.setFoodIntensityAt(grid,foodIntensityAtGrid)
             
     def removeFoodIntensityWithinScope(self):

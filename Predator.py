@@ -56,7 +56,7 @@ class Predator(Animat):
 
         state = self.calculateState()
         action, q = self.brain.chooseAction(state, True)
-        print q
+        # print q
         self.oldState = state
         self.oldAction = action
         self.recordPreviousNPos(2)

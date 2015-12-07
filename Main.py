@@ -53,12 +53,12 @@ while True:
     for predator in predators:
         predator.update()
         preysEaten += predator.eatPreys
-    
+
     foodEaten = 0
     for prey in preys:
         prey.update()
         foodEaten += prey.eatFood
       
-    print preysEaten, foodEaten  
+    print preysEaten, foodEaten 
     # pygame.display.update()  
     clock.tick(10) 
