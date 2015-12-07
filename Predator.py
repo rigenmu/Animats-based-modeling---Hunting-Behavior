@@ -27,13 +27,6 @@ class Predator(Animat):
 
         return preysWithinScope
 
-    def hasPreysWithinScope(self):
-        preysWithinScope = self.getPreysWithinScope()
-        if preysWithinScope:
-            return True
-        else:
-            return False
-
     def isEatingPrey(self):
         return self.isObjectAt(self.posOnMap,'prey')
 
@@ -47,8 +40,8 @@ class Predator(Animat):
         #Check if the animat has been eaten by any of the predators
         if self.posOnMap in self.prevPos:
             reward += -40
-        elif self.hasPreysWithinScope():
-            reward += 20
+        elif self.getPreysWithinScope():
+            reward += 50 * (1 - self.calculateDist(self.posOnMap, min(self.getPreysWithinScope())))
         if self.isEatingPrey():
             #PreyAdult re-spawns itself randomly, if it gets eaten
             self.eatPreys += 1
@@ -58,8 +51,8 @@ class Predator(Animat):
             self.brain.learn(self.oldState,self.oldAction,reward,state)
 
         state = self.calculateState()
-        action = self.brain.chooseAction(state)
-        # action, q = self.brain.chooseAction(state, True)
+
+        action, q = self.brain.chooseAction(state, True)
         # print q
         self.oldState = state
         self.oldAction = action
