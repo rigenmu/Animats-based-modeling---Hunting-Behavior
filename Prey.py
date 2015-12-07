@@ -56,7 +56,7 @@ class Prey(Animat):
                 predatorsWithinScope.append(grid)
 
         return predatorsWithinScope
-    
+
     def hasFoodWithinVisualScope(self):
         gridsWithinVisualScope = self.getGridsWithinVisualScope()
         for grid in gridsWithinVisualScope:

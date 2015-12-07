@@ -41,7 +41,7 @@ class Predator(Animat):
         if self.posOnMap in self.prevPos:
             reward -= 40
         elif self.getPreysWithinScope():
-            reward += 20
+            reward += 50 * (1 - self.calculateDist(self.posOnMap, min(self.getPreysWithinScope())))
         if self.isEatingPrey():
             #PreyAdult re-spawns itself randomly, if it gets eaten
             self.eatPreys += 1
