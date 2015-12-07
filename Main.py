@@ -35,8 +35,8 @@ worldMap = Map(numOfGridsInARow,sizeOfGrid,WHITE,surface,pygame)
 # fixed item should be placed first, since our grid is implemented in a stack manner
 obstacles = [Obstacle(worldMap,random.randrange(1,4),random.randrange(1,4),BROWN) for i in range(numOfObstacles)]
 # obstacles = [Obstacle(worldMap,3,1,BROWN) for i in range(numOfObstacles)]
-foods = [Food(worldMap,3,1,1,GREEN) for i in range(numOfFood)]
-predators = [Predator(worldMap,2,1,1,RED) for i in range(numOfPredators)]
+foods = [Food(worldMap,1,1,GREEN) for i in range(numOfFood)]
+predators = [Predator(worldMap,2,1,3,RED) for i in range(numOfPredators)]
 preys = [Prey(worldMap,2,1,1,YELLOW) for i in range(numOfPreys)]
 
 age = 1

@@ -39,7 +39,7 @@ class Predator(Animat):
 
         #Check if the animat has been eaten by any of the predators
         if self.posOnMap in self.prevPos:
-            reward += -40
+            reward -= 40
         elif self.getPreysWithinScope():
             reward += 20
         if self.isEatingPrey():
