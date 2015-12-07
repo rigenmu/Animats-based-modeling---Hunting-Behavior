@@ -56,14 +56,14 @@ class Prey(Animat):
                 predatorsWithinScope.append(grid)
 
         return predatorsWithinScope
+    
+    def hasFoodWithinVisualScope(self):
+        gridsWithinVisualScope = self.getGridsWithinVisualScope()
+        for grid in gridsWithinVisualScope:
+            if self.worldMap.hasObjectAt(grid,'food'):
+                return True
 
-    def hasPredatorsWithinVisualScope(self):
-        predatorsWithinScope = self.getPredatorsWithinVisualScope()
-
-        if predatorsWithinScope:
-            return True
-        else:
-            return False
+        return False
 
     def isBeingEatenByPredator(self):
         return self.isObjectAt(self.posOnMap,'predator')
@@ -78,15 +78,14 @@ class Prey(Animat):
         state = self.calculateState()
         reward = -10
 
-        #Check if the animat is on a food Intensity gradient
-        if(self.rewardForProximityToFood()):
-            reward += 20 * self.rewardForProximityToFood()
+        if self.hasFoodWithinVisualScope:
+            reward += 20
 
-        if(self.getPredatorsWithinVisualScope()):
-            reward += -30
+        if self.getPredatorsWithinVisualScope():
+            reward -= 30
 
         if self.posOnMap in self.prevPos:
-            reward += -40
+            reward -= 40
 
         #Check if the animat has been eaten by any of the predators
         if(self.isBeingEatenByPredator()):
@@ -131,15 +130,9 @@ class Prey(Animat):
             if not self.worldMap.hasAnyObjectAt(gridWithinVisualScope):
                 currentGridState = (0,)
 
-            if self.worldMap.getFoodIntensityAt(gridWithinVisualScope) > 0:
-                currentGridState += (self.worldMap.getFoodIntensityAt(gridWithinVisualScope),)
-
             return currentGridState
 
         return tuple([stateValueForGridWithinvisualScope(gridWithinVisualScope) for gridWithinVisualScope in self.getGridsWithinVisualScope()])
-
-    def rewardForProximityToFood(self):
-        return self.worldMap.getFoodIntensityAt(self.posOnMap)
 
     def orientation(self, p, q, r):
         val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])

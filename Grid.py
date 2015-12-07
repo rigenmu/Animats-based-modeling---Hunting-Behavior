@@ -9,7 +9,6 @@ class Grid(object):
         self.objectsDict = dict()
         # list objects shows the comming order of the object, so we can always draw the object on top
         self.objects = []
-        self.foodIntensity = 0
     
     @property
     def worldMap(self):
@@ -58,14 +57,6 @@ class Grid(object):
     @objects.setter
     def objects(self,value):
         self._objects = value
-
-    @property
-    def foodIntensity(self):
-        return self._foodIntensity
-    
-    @foodIntensity.setter
-    def foodIntensity(self,value):
-        self._foodIntensity = value
       
     def hasObject(self,objectName):
         return objectName in self.objectsDict;

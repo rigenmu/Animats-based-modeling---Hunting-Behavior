@@ -64,10 +64,7 @@ class Animat(BasicObject):
                 if self.worldMap.isPosWithinBoundary(grid):
                     gridsWithinScope.append(grid)
                     
-        return gridsWithinScope
-      
-    # def getPosFoodIntensity(self,pos):
-    #     return self.worldMap.getFoodIntensityAt(pos)    
+        return gridsWithinScope  
                
     def performAction(self,action):
         offset = (0,0)

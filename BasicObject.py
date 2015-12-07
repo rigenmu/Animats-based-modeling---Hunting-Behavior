@@ -117,3 +117,6 @@ class BasicObject():
     def respawnOnMap(self):
         self.removeObjectAt(self.posOnMap)
         self.initializeAtPos()
+        
+    def calculateDist(self,pos1,pos2):
+        return math.hypot(pos2[0] - pos1[0], pos2[1] - pos1[1])

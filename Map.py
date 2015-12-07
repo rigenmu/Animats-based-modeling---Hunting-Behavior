@@ -99,27 +99,13 @@ class Map:
         if self.isPosWithinBoundary(pos):
             self.gridsMatrix[pos[0]][pos[1]].objects.append(obj)
             self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName] = obj
-     
-    def setFoodIntensityAt(self,pos,foodIntensity):
-        if self.isPosWithinBoundary(pos) and foodIntensity > self.gridsMatrix[pos[0]][pos[1]].foodIntensity:
-            self.gridsMatrix[pos[0]][pos[1]].foodIntensity = foodIntensity
            
     def removeObjectAt(self,pos,objectName):
         if self.hasObjectAt(pos,objectName):
             self.gridsMatrix[pos[0]][pos[1]].objects.remove(self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName])
             del self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName]
-            
-    def removeFoodIntensityAt(self,pos,foodIntensity):
-        if self.isPosWithinBoundary(pos):
-            self.gridsMatrix[pos[0]][pos[1]].foodIntensity -= foodIntensity
-            if self.gridsMatrix[pos[0]][pos[1]].foodIntensity < 0:
-                self.gridsMatrix[pos[0]][pos[1]].foodIntensity = 0
     
     def getObjectAt(self,pos,objectName):
         if self.hasObjectAt(pos,objectName):
             return self.gridsMatrix[pos[0]][pos[1]].objectsDict[objectName]
-        
-    def getFoodIntensityAt(self,pos):
-        if self.isPosWithinBoundary(pos):
-            return self.gridsMatrix[pos[0]][pos[1]].foodIntensity
                 

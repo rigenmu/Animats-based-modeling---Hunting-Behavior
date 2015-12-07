@@ -27,13 +27,6 @@ class Predator(Animat):
 
         return preysWithinScope
 
-    def hasPreysWithinScope(self):
-        preysWithinScope = self.getPreysWithinScope()
-        if preysWithinScope:
-            return True
-        else:
-            return False
-
     def isEatingPrey(self):
         return self.isObjectAt(self.posOnMap,'prey')
 
@@ -47,7 +40,7 @@ class Predator(Animat):
         #Check if the animat has been eaten by any of the predators
         if self.posOnMap in self.prevPos:
             reward += -40
-        elif self.hasPreysWithinScope():
+        elif self.getPreysWithinScope():
             reward += 20
         if self.isEatingPrey():
             #PreyAdult re-spawns itself randomly, if it gets eaten
