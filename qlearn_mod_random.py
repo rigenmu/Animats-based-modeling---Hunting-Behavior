@@ -2,7 +2,7 @@ import random
 
 
 class QLearn:
-    def __init__(self, actions, epsilon=0.1, alpha=0.2, gamma=0.9):
+    def __init__(self, actions, epsilon=0.15, alpha=0.2, gamma=0.9):
         self.q = {}
         self.epsilon = epsilon
         self.alpha = alpha

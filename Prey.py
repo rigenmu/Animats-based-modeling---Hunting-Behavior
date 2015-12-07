@@ -12,11 +12,11 @@ class Prey(Animat):
     @property
     def eatFood(self):
         return self._eatFood
-    
+
     @eatFood.setter
     def eatFood(self,value):
         self._eatFood = value
-        
+
     # we assume preys only have visual sensor
     # and visual scope would be blocked by obstacles
     def getGridsWithinVisualScope(self):
@@ -71,23 +71,26 @@ class Prey(Animat):
     def isEatingFood(self):
         return self.isObjectAt(self.posOnMap,'food')
 
+    def printQTable(self):
+        self.brain.printQTable()
+
     def update(self):
         state = self.calculateState()
-        reward = -1
+        reward = -10
 
         #Check if the animat is on a food Intensity gradient
         if(self.rewardForProximityToFood()):
-            reward +=  -1*(1 - self.rewardForProximityToFood())
+            reward += 20 * self.rewardForProximityToFood()
 
         if(self.getPredatorsWithinVisualScope()):
-            reward += -20
+            reward += -30
 
         if self.posOnMap in self.prevPos:
-            reward += -10
+            reward += -40
 
         #Check if the animat has been eaten by any of the predators
         if(self.isBeingEatenByPredator()):
-            reward = -200
+            reward = -100
             if self.oldState is not None:
                 self.brain.learn(self.oldState,self.oldAction,reward,state)
 
@@ -102,12 +105,13 @@ class Prey(Animat):
             food = self.worldMap.getObjectAt(self.posOnMap,'food')
             food.afterGotEaten()
             self.eatFood += 1
-            reward += 100
-        
+            reward = 200
+
         if self.oldState is not None:
             self.brain.learn(self.oldState,self.oldAction,reward,state)
-            
+
         state = self.calculateState()
+
         action, q = self.brain.chooseAction(state, True)
         # print q
         self.oldState = state
