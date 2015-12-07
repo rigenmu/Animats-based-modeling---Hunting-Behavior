@@ -29,7 +29,7 @@ surface = pygame.display.set_mode((numOfGridsInARow * sizeOfGrid,numOfGridsInARo
 numOfPreys = 1
 numOfPredators = 1
 numOfObstacles = 0
-numOfFood = 2
+numOfFood = 1
 
 worldMap = Map(numOfGridsInARow,sizeOfGrid,WHITE,surface,pygame)
 # fixed item should be placed first, since our grid is implemented in a stack manner
@@ -40,7 +40,7 @@ predators = [Predator(worldMap,2,1,1,RED) for i in range(numOfPredators)]
 preys = [Prey(worldMap,2,1,1,YELLOW) for i in range(numOfPreys)]
 
 age = 1
-learningAges = 50000
+learningAges = 200000
 preysEaten = []
 foodEaten = []
 while True:
@@ -75,12 +75,12 @@ while True:
         print('\n'.join('{}: {}'.format(*k) for k in enumerate(preysEaten)))
         print "Prey eat Food:"
         print('\n'.join('{}: {}'.format(*k) for k in enumerate(foodEaten)))
-        for prey in preys:
-            print "prey Q table ----------------------------------------"
-            prey.printQTable()
-        for predator in predators:
-            print "predator Q table ----------------------------------------"
-            predator.printQTable()
+        # for prey in preys:
+#             print "prey Q table ----------------------------------------"
+#             prey.printQTable()
+#         for predator in predators:
+#             print "predator Q table ----------------------------------------"
+#             predator.printQTable()
 
     if age >= learningAges:
         worldMap.updateMap()

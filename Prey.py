@@ -80,7 +80,7 @@ class Prey(Animat):
 
         #Check if the animat is on a food Intensity gradient
         if(self.rewardForProximityToFood()):
-            reward += 20 * self.rewardForProximityToFood()
+            reward += -1 * (1 - self.rewardForProximityToFood())
 
         if(self.getPredatorsWithinVisualScope()):
             reward += -30
