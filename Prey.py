@@ -79,17 +79,17 @@ class Prey(Animat):
         reward = -10
 
         if self.hasFoodWithinVisualScope:
-            reward += 20
+            reward += 5
 
         if self.getPredatorsWithinVisualScope():
-            reward -= 30
+            reward -= 20
 
         if self.posOnMap in self.prevPos:
-            reward -= 40
+            reward -= 20
 
         #Check if the animat has been eaten by any of the predators
         if(self.isBeingEatenByPredator()):
-            reward = -100
+            reward = -200
             if self.oldState is not None:
                 self.brain.learn(self.oldState,self.oldAction,reward,state)
 
@@ -104,7 +104,7 @@ class Prey(Animat):
             food = self.worldMap.getObjectAt(self.posOnMap,'food')
             food.afterGotEaten()
             self.eatFood += 1
-            reward = 200
+            reward = 100
 
         if self.oldState is not None:
             self.brain.learn(self.oldState,self.oldAction,reward,state)
@@ -119,20 +119,17 @@ class Prey(Animat):
         self.performAction(action)
 
     def calculateState(self):
-        def stateValueForGridWithinvisualScope(gridWithinVisualScope):
-            currentGridState = ()
-            if self.worldMap.hasObjectAt(gridWithinVisualScope,'predator'):
-                currentGridState += (4,)
-            if self.worldMap.hasObjectAt(gridWithinVisualScope,'food'):
-                currentGridState += (3,)
-            if self.worldMap.hasObjectAt(gridWithinVisualScope,'obstacle'):
-                currentGridState = (2,)
-            if not self.worldMap.hasAnyObjectAt(gridWithinVisualScope):
-                currentGridState = (0,)
+        def stateValueForGridWithinScope(gridWithinScope):
+            if self.worldMap.hasObjectAt(gridWithinScope,'prey'):
+                return 3
+            elif self.worldMap.hasObjectAt(gridWithinScope,'food'):
+                return 2
+            elif self.worldMap.hasObjectAt(gridWithinScope,'obstacle'):
+                return 1
+            else:
+                return 0
 
-            return currentGridState
-
-        return tuple([stateValueForGridWithinvisualScope(gridWithinVisualScope) for gridWithinVisualScope in self.getGridsWithinVisualScope()])
+        return tuple([stateValueForGridWithinScope(gridWithinScope) for gridWithinScope in self.getGridsWithinScope()])
 
     def orientation(self, p, q, r):
         val = (q[1] - p[1]) * (r[0] - q[0]) - (q[0] - p[0]) * (r[1] - q[1])

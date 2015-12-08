@@ -39,9 +39,11 @@ class Predator(Animat):
 
         #Check if the animat has been eaten by any of the predators
         if self.posOnMap in self.prevPos:
-            reward += -40
-        elif self.getPreysWithinScope():
-            reward += 50 * (1 - self.calculateDist(self.posOnMap, min(self.getPreysWithinScope())))
+            reward += -20
+
+        if self.getPreysWithinScope():
+            reward = 30 * (1 - self.calculateDist(self.posOnMap, min(self.getPreysWithinScope())))
+
         if self.isEatingPrey():
             #PreyAdult re-spawns itself randomly, if it gets eaten
             self.eatPreys += 1
