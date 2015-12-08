@@ -77,7 +77,11 @@ class BasicObject():
         return True
 
     def isAnyObjectAt(self,pos):
-        return self.worldMap.hasAnyObjectAt(pos)
+        for i in range(pos[0],pos[0]+self.width):
+            for j in range(pos[1],pos[1]+self.height):
+                if self.worldMap.hasAnyObjectAt(pos):
+                    return True
+        return False
 
     # check if current object would collide with certain object at certain position on map
     def isObjectAt(self,pos,objectName):

@@ -1,5 +1,4 @@
 from Environment import Environment
-import math
 
 class Food(Environment):
 
